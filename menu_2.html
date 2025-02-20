@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,24 +10,26 @@
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 18px;
             background-color: #f3e5d8;
             text-align: center;
-            transition: background 0.3s ease;
         }
+        
         .menu-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
             padding: 20px;
             background: #fff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             border-radius: 15px;
         }
+        
         h1 {
             font-family: 'Dancing Script', cursive;
             color: #8B4513;
             font-size: 2.5em;
         }
+        
         .search-bar {
             margin: 10px auto;
             padding: 10px;
@@ -35,44 +38,66 @@
             border: 1px solid #8B4513;
             font-size: 1em;
         }
+        
         .category-container {
             display: flex;
             overflow-x: auto;
-            white-space: nowrap;
             gap: 15px;
             padding: 10px;
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            /* Hide scrollbar in Internet Explorer/Edge */
+            scrollbar-width: none;
             scroll-behavior: smooth;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 1000;
         }
+        
         .menu-category {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
             color: #6b4226;
             background: #fff;
             padding: 10px 15px;
             border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+        
         .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: flex;
+            /* Change from grid to flex */
             gap: 20px;
+            /* Space between items */
             padding: 20px 0;
+            overflow-x: auto;
+            /* Enable horizontal scrolling */
+            -ms-overflow-style: none;
+            /* Hide scrollbar in Internet Explorer/Edge */
+            scrollbar-width: none;
+            /* Hide scrollbar in Firefox */
+            white-space: nowrap;
+            /* Prevent wrapping */
         }
+        
         .menu-item {
             background: #fff;
             padding: 15px;
             border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+        
         .menu-item img {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            max-width: 120px;
+            height: auto;
             border-radius: 10px;
-            margin-bottom: 10px;
         }
+        
         .quantity-controls {
             display: flex;
             justify-content: center;
@@ -80,6 +105,7 @@
             gap: 10px;
             margin-top: 10px;
         }
+        
         .quantity-controls button {
             background: #8B4513;
             color: white;
@@ -89,14 +115,28 @@
             font-size: 1em;
             border-radius: 5px;
         }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            .menu-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            .menu-category {
+                font-size: 0.9em;
+                padding: 8px 12px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="menu-container">
         <h1>Our Special Café Menu</h1>
         <input type="text" class="search-bar" placeholder="Search menu..." onkeyup="searchMenu()">
-        <div id="categories">
-        </div>
+        <div class="category-container" id="category-scroll"></div>
+        <div id="categories"></div>
     </div>
     <script>
         const menuItems = {
@@ -116,14 +156,22 @@
             "Beverages": ["Orange Juice", "Soda"]
         };
 
+        function renderCategories() {
+            const categoryContainer = document.getElementById("category-scroll");
+            for (const category in menuItems) {
+                let categoryButton = `<div class='menu-category' onclick='scrollToCategory("${category}")'>${category}</div>`;
+                categoryContainer.innerHTML += categoryButton;
+            }
+        }
+
         function renderMenu() {
             const container = document.getElementById("categories");
             container.innerHTML = "";
             for (const category in menuItems) {
-                let section = `<div class='menu-category'>${category}</div><div class='menu-grid'>`;
+                let section = `<div class='menu-category' id='${category}'>${category}</div><div class='menu-grid'>`;
                 menuItems[category].forEach(item => {
                     section += `<div class='menu-item'>
-                        <img src='${item.toLowerCase().replace(/ /g, "_")}.jpg' alt='${item}'>
+                        <img src='${item.toLowerCase().replace(/ /g, "_")}.jpg' alt='${item}' onerror='this.src="placeholder.jpg"'>
                         <p>${item}</p>
                         <span class='price'>$4.00</span>
                         <div class='quantity-controls'>
@@ -138,15 +186,9 @@
             }
         }
 
-        function searchMenu() {
-            let input = document.querySelector('.search-bar').value.toLowerCase();
-            let categories = document.querySelectorAll('.menu-category');
-            categories.forEach(category => {
-                let items = category.nextElementSibling.children;
-                let matches = [...items].filter(item => item.innerText.toLowerCase().includes(input));
-                [...items].forEach(item => item.style.display = 'none');
-                matches.forEach(item => item.style.display = 'block');
-                category.style.display = matches.length ? 'block' : 'none';
+        function scrollToCategory(category) {
+            document.getElementById(category).scrollIntoView({
+                behavior: "smooth"
             });
         }
 
@@ -156,7 +198,17 @@
             quantitySpan.textContent = Math.max(0, currentQuantity + value);
         }
 
+        function searchMenu() {
+            const query = document.querySelector('.search-bar').value.toLowerCase();
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const itemName = item.querySelector('p').textContent.toLowerCase();
+                item.style.display = itemName.includes(query) ? "block" : "none";
+            });
+        }
+
+        renderCategories();
         renderMenu();
     </script>
 </body>
+
 </html>
