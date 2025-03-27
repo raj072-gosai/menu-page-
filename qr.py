@@ -1,11 +1,10 @@
 import qrcode
 
-wifi_details = "WIFI:T:WPA;S:Raj;P:12345678;;"
-redirect_url = "http://192.168.144.50:5500/menu.html"
+redirect_url = "http://192.168.58.25/menu.php?table_number=4"
 
 # Combine Wi-Fi details and redirect URL
-qr_data = wifi_details + "URL:" + redirect_url
+qr_data =  redirect_url
 
 # Generate the QR code
 qr = qrcode.make(qr_data)
-qr.save("wifi_menu_qr.png")
+qr.save("menu_qr_4.png")
